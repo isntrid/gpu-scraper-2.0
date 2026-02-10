@@ -10,25 +10,33 @@ soup = BeautifulSoup(html, "html.parser")
 
 tags = soup.find_all("strong")
 
+def get_item_from_tag(tag):
+    price_text = tag.get_text().replace(",", "")
+    if not price_text.isdigit():
+        return None
+
+    price = int(price_text)
+    if price < 90:
+        return None
+
+    container = tag.find_parent("div", class_="item-cell")
+
+    if link_tag := container.find("a", class_="item-title"):
+        return {
+            "price": price,
+            "link": link_tag.get("href"),
+            "name": link_tag.get_text(strip=True),
+        }
+    else:
+        return None
+
 items = []
 for tag in tags:
-    price_text = tag.get_text().replace(",", "")
-    if price_text.isdigit() and int(price_text) >= 90:
-        container = tag.find_parent("div", class_="item-cell")
-        link_tag = container.find("a", class_="item-title")
-        link = link_tag.get("href")
-        name = link_tag.get_text(strip=True)
-        price = int(price_text)
+    if item := get_item_from_tag(tag):
+        items.append(item)
 
-        items.append(
-            {
-                "price": price,
-                "link": link,
-                "name": name,
-            }
-        )
 
-mode = input("Mode: ")  
+mode = input("Mode: ")
 sort_field = "price"
 
 
