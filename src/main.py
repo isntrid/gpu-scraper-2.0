@@ -9,19 +9,37 @@ html = resp.text
 soup = BeautifulSoup(html, "html.parser")
 
 tags = soup.find_all("strong")
-mappings = {}
+
+# collect all valid items as a list of dicts
+items = []
 for tag in tags:
-    price = tag.get_text().replace(",", "")
-    if price.isdigit() and int(price) >= 90:
+    price_text = tag.get_text().replace(",", "")
+    if price_text.isdigit() and int(price_text) >= 90:
         container = tag.find_parent("div", class_="item-cell")
         link_tag = container.find("a", class_="item-title")
         link = link_tag.get("href")
-        name = link_tag.get_text()
-        price = int(price.strip())
-        mappings[price] = [link, name]
+        name = link_tag.get_text(strip=True)
+        price = int(price_text)
+
+        items.append(
+            {
+                "price": price,
+                "link": link,
+                "name": name,
+            }
+        )
+
+mode = input("Mode? ")  
+sort_field = "price"
 
 
-cheapest_price = max(mappings.keys())
-cheapest_link = mappings[cheapest_price][0]
-cheapest_name = mappings[cheapest_price][1]
-print(cheapest_link)
+if mode == "min":
+    selected_item = min(items, key=lambda i: i[sort_field])
+elif mode == "max":
+    selected_item = max(items, key=lambda i: i[sort_field])
+else:
+    raise ValueError("mode must be 'min' or 'max'")
+
+display_field = input("Display? ")
+
+print(selected_item[display_field])
