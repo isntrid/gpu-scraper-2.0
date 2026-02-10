@@ -20,7 +20,7 @@ for tag in tags:
         mappings[price] = [link, name]
 
 
-cheapest_price = max(mappings.keys())
+cheapest_price = min(mappings.keys())
 cheapest_link = mappings[cheapest_price][0]
 cheapest_name = mappings[cheapest_price][1]
 print(cheapest_link)
