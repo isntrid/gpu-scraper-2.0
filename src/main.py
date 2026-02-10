@@ -28,7 +28,7 @@ for tag in tags:
             }
         )
 
-mode = input("Mode? ")  
+mode = input("Mode: ")  
 sort_field = "price"
 
 
@@ -39,6 +39,6 @@ elif mode == "max":
 else:
     raise ValueError("mode must be 'min' or 'max'")
 
-display_field = input("Display? ")
+display_field = input("Display: ")
 
 print(selected_item[display_field])
