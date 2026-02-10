@@ -10,7 +10,7 @@ soup = BeautifulSoup(html, "html.parser")
 
 tags = soup.find_all("strong")
 
-def get_info_from_tag(tag):
+def get_info_from_tag(tag, target=None):
     """Extract a GPU listing from a price tag element if it looks valid.
 
     This parses the tag's text as a price, filters out low or invalid prices,
@@ -23,7 +23,14 @@ def get_info_from_tag(tag):
         dict | None: A dictionary with "price", "link", and "name" keys if the
         tag represents a valid item, otherwise None.
     """
-    
+    container = tag.find_parent("div", class_="item-cell")
+    if not container:
+        return None
+    link_tag = container.find("a", class_="item-title")
+    gpu_name = link_tag.get_text(strip=True)
+    if target not in gpu_name:
+        return None
+        
     price_text = tag.get_text().replace(",", "")
     if not price_text.isdigit():
         return None
@@ -32,40 +39,38 @@ def get_info_from_tag(tag):
     if price < 90:
         return None
 
-    container = tag.find_parent("div", class_="item-cell")
-    if not container:
-        return None
-
-    if link_tag := container.find("a", class_="item-title"):
+    if link_tag:
         return {
             "price": price,
             "link": link_tag.get("href"),
-            "name": link_tag.get_text(strip=True),
+            "name": gpu_name,
         }
     else:
         return None
 
 
 def main():
+    
+    name = input("What gpu do you want to search for? ")
+    
     items = []
     for tag in tags:
-        if item := get_info_from_tag(tag):
+        if item := get_info_from_tag(tag, name):
             items.append(item)
-            
+        
+    if not items:
+        print("None found")
+        exit(1)
+        
     mode = input("Mode: ")
     sort_field = "price"
-
-
     if mode == "min":
         selected_item = min(items, key=lambda i: i[sort_field])
     elif mode == "max":
         selected_item = max(items, key=lambda i: i[sort_field])
     else:
         raise ValueError("mode must be 'min' or 'max'")
+    
+    print(f'Found {len(selected_item["link"])}\n{selected_item["link"]}')
 
-    display_field = input("Display: ")
-
-    print(selected_item[display_field])
-
-
-
+main()
