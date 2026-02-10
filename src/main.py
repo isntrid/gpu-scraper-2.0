@@ -12,13 +12,14 @@ tags = soup.find_all("strong")
 mappings = {}
 for tag in tags:
     if tag.getText().isdigit() and int(tag.getText()) >= 90 :
-        price = tag
-        container = price.find_parent("div", class_="item-cell")
+        container = tag.find_parent("div", class_="item-cell")
         link_tag = container.find("a", class_="item-title")
         link = link_tag.get("href")
         name = link_tag.get_text()
-        mappings[link] = price
-        print(name)
+        price = int(tag.get_text().strip())
+        mappings[price] = link
 
-for k,v in mappings.items():
-    print(f'{k} : {v}')
+
+cheapest_price = min(mappings.keys())
+cheapest_link = mappings[cheapest_price]
+print(cheapest_link)
