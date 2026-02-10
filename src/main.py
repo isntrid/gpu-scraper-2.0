@@ -50,17 +50,16 @@ def get_info_from_tag(tag, target=None):
 
 
 def main():
-    
-    name = input("What gpu do you want to search for? ")
-    
-    items = []
-    for tag in tags:
-        if item := get_info_from_tag(tag, name):
-            items.append(item)
-        
-    if not items:
-        print("None found")
-        exit(1)
+    while True:
+        name = input("GPU to search for: ")
+        items = []
+        for tag in tags:
+            if item := get_info_from_tag(tag, name):
+                items.append(item)
+        if not items:
+            print("None found")
+        else:
+            break
         
     mode = input("Mode: ")
     sort_field = "price"
