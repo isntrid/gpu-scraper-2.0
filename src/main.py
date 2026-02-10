@@ -10,7 +10,6 @@ soup = BeautifulSoup(html, "html.parser")
 
 tags = soup.find_all("strong")
 
-# collect all valid items as a list of dicts
 items = []
 for tag in tags:
     price_text = tag.get_text().replace(",", "")
