@@ -10,7 +10,20 @@ soup = BeautifulSoup(html, "html.parser")
 
 tags = soup.find_all("strong")
 
-def get_item_from_tag(tag):
+def get_info_from_tag(tag):
+    """Extract a GPU listing from a price tag element if it looks valid.
+
+    This parses the tag's text as a price, filters out low or invalid prices,
+    and returns metadata about the associated product listing.
+
+    Args:
+        tag: A BeautifulSoup tag that is expected to contain a price.
+
+    Returns:
+        dict | None: A dictionary with "price", "link", and "name" keys if the
+        tag represents a valid item, otherwise None.
+    """
+    
     price_text = tag.get_text().replace(",", "")
     if not price_text.isdigit():
         return None
@@ -20,6 +33,8 @@ def get_item_from_tag(tag):
         return None
 
     container = tag.find_parent("div", class_="item-cell")
+    if not container:
+        return None
 
     if link_tag := container.find("a", class_="item-title"):
         return {
@@ -30,23 +45,27 @@ def get_item_from_tag(tag):
     else:
         return None
 
-items = []
-for tag in tags:
-    if item := get_item_from_tag(tag):
-        items.append(item)
+
+def main():
+    items = []
+    for tag in tags:
+        if item := get_info_from_tag(tag):
+            items.append(item)
+            
+    mode = input("Mode: ")
+    sort_field = "price"
 
 
-mode = input("Mode: ")
-sort_field = "price"
+    if mode == "min":
+        selected_item = min(items, key=lambda i: i[sort_field])
+    elif mode == "max":
+        selected_item = max(items, key=lambda i: i[sort_field])
+    else:
+        raise ValueError("mode must be 'min' or 'max'")
+
+    display_field = input("Display: ")
+
+    print(selected_item[display_field])
 
 
-if mode == "min":
-    selected_item = min(items, key=lambda i: i[sort_field])
-elif mode == "max":
-    selected_item = max(items, key=lambda i: i[sort_field])
-else:
-    raise ValueError("mode must be 'min' or 'max'")
 
-display_field = input("Display: ")
-
-print(selected_item[display_field])
