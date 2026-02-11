@@ -1,53 +1,46 @@
 import requests
 from bs4 import BeautifulSoup
 
-url = "https://www.newegg.com/global/uk-en/p/pl?N=101582760&PageSize=96"
+url = "https://www.amazon.co.uk/s?k=graphics+cards&crid=1IV82F8UL4HFB&qid=1770823482&sprefix=graphics+cards%2Caps%2C99&xpid=-BpzREDtw_auY&ref=sr_pg_1"
 headers = {"User-Agent": "my-scraper/0.1"}
 resp = requests.get(url, headers=headers)
 html = resp.text
 
 soup = BeautifulSoup(html, "html.parser")
 
-tags = soup.find_all("strong")
+tags = soup.find_all("span", class_="a-price-whole")
+
+def get_link(tag):
+    pass
 
 def get_info_from_tag(tag, target=None):
-    """Extract a GPU listing from a price tag element if it looks valid.
 
-    This parses the tag's text as a price, filters out low or invalid prices,
-    and returns metadata about the associated product listing.
-
-    Args:
-        tag: A BeautifulSoup tag that is expected to contain a price.
-
-    Returns:
-        dict | None: A dictionary with "price", "link", and "name" keys if the
-        tag represents a valid item, otherwise None.
-    """
-    container = tag.find_parent("div", class_="item-cell")
+    container = tag.find_parent("div", attrs={"data-component-type": "s-search-result"})
     if not container:
         return None
-    link_tag = container.find("a", class_="item-title")
-    gpu_name = link_tag.get_text(strip=True).lower()
-    if target.lower() not in gpu_name:
-        return None
-        
-    price_text = tag.get_text().replace(",", "")
-    if not price_text.isdigit():
-        return None
-
-    price = int(price_text)
-    if price < 90:
-        return None
-
-    if link_tag:
-        return {
-            "price": price,
-            "link": link_tag.get("href"),
-            "name": gpu_name,
-        }
+    
+    h2 = container.find("h2")
+    if h2:
+        name = h2.get("aria-label")
     else:
         return None
+    
+    if target.lower() not in name:
+        return None
 
+    price = container.find("span", class_="a-offscreen").get_text()
+    if not price:
+        return None
+
+    link_tag = container.find("a", class_="a-link-normal s-line-clamp-2 puis-line-clamp-3-for-col-4-and-8 s-link-style a-text-normal")
+    link = "https://www.amazon.co.uk" + link_tag.get("href")
+
+    return {
+        "price": price,
+        "link": link,
+        "name": name,
+    }
+    
 
 def main():
     while True:
@@ -70,6 +63,14 @@ def main():
     else:
         raise ValueError("mode must be 'min' or 'max'")
     
-    print(f'Found {len(selected_item["link"])}\n{selected_item["link"]}')
+    link = selected_item["link"]
+    count = len(link)
+    text = "link to gpu"
+
+    #hyperlink
+    hyperlink = f'\033]8;;{link}\033\\{text}\033]8;;\033\\'
+
+    print(f"Found {count}")
+    print(hyperlink)
 
 main()
