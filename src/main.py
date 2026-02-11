@@ -27,8 +27,8 @@ def get_info_from_tag(tag, target=None):
     if not container:
         return None
     link_tag = container.find("a", class_="item-title")
-    gpu_name = link_tag.get_text(strip=True)
-    if target not in gpu_name:
+    gpu_name = link_tag.get_text(strip=True).lower()
+    if target.lower() not in gpu_name:
         return None
         
     price_text = tag.get_text().replace(",", "")
