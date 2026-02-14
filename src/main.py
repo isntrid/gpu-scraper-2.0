@@ -67,7 +67,7 @@ def main():
     count = len(link)
     text = "link to gpu"
 
-    #hyperlink
+  
     hyperlink = f'\033]8;;{link}\033\\{text}\033]8;;\033\\'
 
     print(f"Found {count}")
