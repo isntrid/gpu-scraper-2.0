@@ -10,8 +10,6 @@ soup = BeautifulSoup(html, "html.parser")
 
 tags = soup.find_all("span", class_="a-price-whole")
 
-def get_link(tag):
-    pass
 
 def get_info_from_tag(tag, target=None):
 
@@ -25,7 +23,7 @@ def get_info_from_tag(tag, target=None):
     else:
         return None
     
-    if target.lower() not in name:
+    if target.lower() not in name.lower():
         return None
 
     price = container.find("span", class_="a-offscreen").get_text()
@@ -64,13 +62,11 @@ def main():
         raise ValueError("mode must be 'min' or 'max'")
     
     link = selected_item["link"]
-    count = len(link)
     text = "link to gpu"
 
-  
     hyperlink = f'\033]8;;{link}\033\\{text}\033]8;;\033\\'
 
-    print(f"Found {count}")
+    print(f"Found {len(items)} matching item(s)")
     print(hyperlink)
 
 main()
